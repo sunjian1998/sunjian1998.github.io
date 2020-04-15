@@ -321,7 +321,7 @@
     </div>
     <div class="article-meta">
         
-        创建时间:<time class="date" title='更新时间: 2020-04-15 17:42:52'>2020-04-15 17:30</time>
+        创建时间:<time class="date" title='更新时间: 2020-04-15 17:49:05'>2020-04-15 17:30</time>
         
     </div>
     <div class="article-meta">
@@ -359,9 +359,9 @@
     
     <div class="article-entry" itemprop="articleBody">
       
-        <p><strong>利用反射推导schema</strong><br>‘’’java<br>package com.sqldemo<br>import org.apache.spark.sql.SparkSession<br>//方法一，利用反射，建立模式匹配类<br>//利用反射，rdd转换成dataFrame，模式匹配<br>case class Person(val name:String,val age:Int)<br>object sqldemo1 {<br>  def main(args: Array[String]): Unit = {<br>    //创建一个sparkSession对象<br>    val sparkSession = SparkSession.builder().appName(“casesql”).master(“local[2]”).getOrCreate()<br>    //创建SparkContext对象<br>    val sc = sparkSession.sparkContext<br>    //读取数据文件，获得一个rdd<br>    val rdd1 = sc.textFile(“D:/people.txt”).map(<em>.split(“,”))<br>    //将rdd与样例类关联<br>    val personRDD = rdd1.map(x=&gt;Person(x(0),x(1).toInt))<br>    //将personRDD转化成dataFrame，需导入隐转换<br>    import sparkSession.implicits.</em><br>    val personDF = personRDD.toDF()<br>    //dataFrame风格操作<br>    personDF.printSchema()<br>    personDF.show()<br>    personDF.select(“name”,”age”).show()<br>    personDF.select($”age”&gt;30).show()<br>    //sql风格操作<br>    personDF.createTempView(“person”)<br>    sparkSession.sql(“select * from person”).show()<br>    sparkSession.sql(“select * from person where age&gt;30”).show()<br>    //关闭sparkSession对象<br>    sparkSession.stop()<br>  }</p>
+        <p><strong>利用反射推导schema</strong><br>···java<br>package com.sqldemo<br>import org.apache.spark.sql.SparkSession<br>//方法一，利用反射，建立模式匹配类<br>//利用反射，rdd转换成dataFrame，模式匹配<br>case class Person(val name:String,val age:Int)<br>object sqldemo1 {<br>  def main(args: Array[String]): Unit = {<br>    //创建一个sparkSession对象<br>    val sparkSession = SparkSession.builder().appName(“casesql”).master(“local[2]”).getOrCreate()<br>    //创建SparkContext对象<br>    val sc = sparkSession.sparkContext<br>    //读取数据文件，获得一个rdd<br>    val rdd1 = sc.textFile(“D:/people.txt”).map(<em>.split(“,”))<br>    //将rdd与样例类关联<br>    val personRDD = rdd1.map(x=&gt;Person(x(0),x(1).toInt))<br>    //将personRDD转化成dataFrame，需导入隐转换<br>    import sparkSession.implicits.</em><br>    val personDF = personRDD.toDF()<br>    //dataFrame风格操作<br>    personDF.printSchema()<br>    personDF.show()<br>    personDF.select(“name”,”age”).show()<br>    personDF.select($”age”&gt;30).show()<br>    //sql风格操作<br>    personDF.createTempView(“person”)<br>    sparkSession.sql(“select * from person”).show()<br>    sparkSession.sql(“select * from person where age&gt;30”).show()<br>    //关闭sparkSession对象<br>    sparkSession.stop()<br>  }</p>
 <p>}</p>
-<p>‘’’</p>
+<p>···</p>
 
       
        <hr><span style="font-style: italic;color: gray;"> 转载请注明来源，欢迎对文章中的引用来源进行考证，欢迎指出任何有错误或不够清晰的表达。可以在下面评论区评论，也可以邮件至 2471447856@qq.com </span>
@@ -379,7 +379,7 @@
     
     <p><span class="copy-title">本文作者:</span><a  title="Sunny">Sunny</a></p>
     <p><span class="copy-title">发布时间:</span>2020-04-15, 17:30:12</p>
-    <p><span class="copy-title">最后更新:</span>2020-04-15, 17:42:52</p>
+    <p><span class="copy-title">最后更新:</span>2020-04-15, 17:49:05</p>
     <span class="copy-title">原始链接:</span><a class="post-url" href="/2020/04/15/sparksql/" title="sparksql">http://yoursite.com/2020/04/15/sparksql/</a>
     <p>
         <span class="copy-title">版权声明:</span><i class="fa fa-creative-commons"></i> <a rel="license noopener" href="http://creativecommons.org/licenses/by-nc-sa/4.0/" target="_blank" title="CC BY-NC-SA 4.0 International" target = "_blank">"署名-非商用-相同方式共享 4.0"</a> 转载请保留原文链接及作者。
