@@ -2,9 +2,9 @@
 <html>
 <head>
   <meta charset="utf-8">
-  <title>gooddream | To Sunny</title>
+  <title>sparksql-saledemo | To Sunny</title>
   <meta name="keywords" content="">
-  <meta name="description" content="gooddream | To Sunny">
+  <meta name="description" content="sparksql-saledemo | To Sunny">
     <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
 <meta property="og:type" content="website">
 <meta property="og:title" content="PAT乙">
@@ -325,9 +325,9 @@
 </aside>
 <div class="post">
     <div class="pjax">
-        <article id="post-gooddream" class="article article-type-post" itemscope itemprop="blogPost">
+        <article id="post-sparksql-saledemo" class="article article-type-post" itemscope itemprop="blogPost">
     
-        <h1 class="article-title">gooddream</h1>
+        <h1 class="article-title">sparksql-saledemo</h1>
     
     <div class="article-meta">
         
@@ -337,7 +337,7 @@
     </div>
     <div class="article-meta">
         
-        创建时间:<time class="date" title='更新时间: 2020-04-02 00:21:29'>2020-04-02 00:21</time>
+        创建时间:<time class="date" title='更新时间: 2020-04-15 19:50:51'>2020-04-15 19:46</time>
         
     </div>
     <div class="article-meta">
@@ -375,7 +375,11 @@
     
     <div class="article-entry" itemprop="articleBody">
       
-        
+        <p><strong>一个综合案例</strong><br>1.首先过滤掉不完整的数据，比如说第三条<br>2.rdd函数计算每天的消费金额总和，最后的输出结果(时间,消费金额总和)<br>3.sparksql来实现每天的消费金额总和，最后的输出结果(时间,消费金额总和)<br>4.sparksql来实现每天多少个用户下单(重复的用户只能算一个用户)，最后的输出结果(时间,用户个数)<br>sale.txt数据如下：</p>
+<blockquote>
+<p>2020-02-01,55,1122<br>2020-02-01,23,1133<br>2020-02-01,15<br>2020-02-01,78,1122<br>2020-02-02,56,1155<br>2020-02-02,113,1155 </p>
+</blockquote>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">package</span> com.sqldemo</span><br><span class="line"><span class="keyword">import</span> org.apache.spark.sql.types.&#123;StructField, StructType,StringType,IntegerType&#125;</span><br><span class="line"><span class="keyword">import</span> org.apache.spark.sql.&#123;Row, SparkSession&#125;</span><br><span class="line">object saledemo &#123;</span><br><span class="line">  <span class="function">def <span class="title">main</span><span class="params">(args: Array[String])</span>: Unit </span>= &#123;</span><br><span class="line">    val spark = SparkSession.builder().appName(<span class="string">"sale"</span>).master(<span class="string">"local[2]"</span>).getOrCreate()</span><br><span class="line">    val sc= spark.sparkContext</span><br><span class="line">    sc.setLogLevel(<span class="string">"error"</span>)</span><br><span class="line">    val saleRDD = sc.textFile(<span class="string">"d://sale.txt"</span>)</span><br><span class="line">    <span class="comment">//过滤数据</span></span><br><span class="line">    val result = saleRDD.filter(line =&gt; (line.split(<span class="string">","</span>).length == <span class="number">3</span>))</span><br><span class="line">    <span class="comment">//可以使用rdd的reducebykey算子实现每天的消费金额总和</span></span><br><span class="line">    val reducerdd = result.map(x =&gt;(x.split(<span class="string">","</span>)(<span class="number">0</span>),x.split(<span class="string">","</span>)(<span class="number">1</span>).toInt))</span><br><span class="line">    reducerdd.reduceByKey(_+_).collect().foreach(println)</span><br><span class="line">    <span class="comment">//sparksql来实现每天的消费金额总和，rdd转换为rowrdd</span></span><br><span class="line">    val RowRDD = result.map(x=&gt;Row(x.split(<span class="string">","</span>)(<span class="number">0</span>),x.split(<span class="string">","</span>)(<span class="number">1</span>).toInt,x.split(<span class="string">","</span>)(<span class="number">2</span>).toInt))</span><br><span class="line">    val schema = StructType(</span><br><span class="line">      Array(</span><br><span class="line">        StructField(<span class="string">"time"</span>,StringType,<span class="keyword">true</span>),</span><br><span class="line">        StructField(<span class="string">"buy"</span>,IntegerType,<span class="keyword">true</span>),</span><br><span class="line">        StructField(<span class="string">"id"</span>,IntegerType,<span class="keyword">true</span>)</span><br><span class="line">      )</span><br><span class="line">    )</span><br><span class="line">    <span class="comment">//将schema信息映射到rowRDD,创建dataframe</span></span><br><span class="line">    val saleDF = spark.createDataFrame(RowRDD,schema)</span><br><span class="line">    <span class="comment">//注册表</span></span><br><span class="line">    saleDF.createTempView(<span class="string">"sale"</span>)</span><br><span class="line">    val df = spark.sql(<span class="string">"select time,sum(buy) from sale group by time"</span>)</span><br><span class="line">    df.show()</span><br><span class="line">    val df1 = spark.sql(<span class="string">"select time,count(distinct id) as idcount from sale group by time"</span>)</span><br><span class="line">    df1.show()</span><br><span class="line">    spark.stop()</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
       
        <hr><span style="font-style: italic;color: gray;"> 转载请注明来源，欢迎对文章中的引用来源进行考证，欢迎指出任何有错误或不够清晰的表达。可以在下面评论区评论，也可以邮件至 2471447856@qq.com </span>
     </div>
@@ -388,12 +392,12 @@
 
 
 <div class="article_copyright">
-    <p><span class="copy-title">文章标题:</span>gooddream</p>
+    <p><span class="copy-title">文章标题:</span>sparksql-saledemo</p>
     
     <p><span class="copy-title">本文作者:</span><a  title="Sunny">Sunny</a></p>
-    <p><span class="copy-title">发布时间:</span>2020-04-02, 00:21:29</p>
-    <p><span class="copy-title">最后更新:</span>2020-04-02, 00:21:29</p>
-    <span class="copy-title">原始链接:</span><a class="post-url" href="/2020/04/02/gooddream/" title="gooddream">http://yoursite.com/2020/04/02/gooddream/</a>
+    <p><span class="copy-title">发布时间:</span>2020-04-15, 19:46:02</p>
+    <p><span class="copy-title">最后更新:</span>2020-04-15, 19:50:51</p>
+    <span class="copy-title">原始链接:</span><a class="post-url" href="/2020/04/15/sparksql-saledemo/" title="sparksql-saledemo">http://yoursite.com/2020/04/15/sparksql-saledemo/</a>
     <p>
         <span class="copy-title">版权声明:</span><i class="fa fa-creative-commons"></i> <a rel="license noopener" href="http://creativecommons.org/licenses/by-nc-sa/4.0/" target="_blank" title="CC BY-NC-SA 4.0 International" target = "_blank">"署名-非商用-相同方式共享 4.0"</a> 转载请保留原文链接及作者。
     </p>

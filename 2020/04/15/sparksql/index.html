@@ -205,7 +205,7 @@
 
 
 <ul>
-    <li><div class="all active">全部文章<small>(5)</small></div></li>
+    <li><div class="all active">全部文章<small>(7)</small></div></li>
     
 </ul>
 <div class="left-bottom">
@@ -217,7 +217,7 @@
     </div>
     <div><a class="about  hasFriend  site_url"  href="/about">关于</a><a style="width: 50%"  class="friends">友链</a></div>
 </div>
-<input type="hidden" id="yelog_site_posts_number" value="5">
+<input type="hidden" id="yelog_site_posts_number" value="7">
 
 <div style="display: none">
     <span id="busuanzi_value_site_uv"></span>
@@ -297,6 +297,22 @@
             <span class="post-date" title="2020-04-15 17:30:12">2020/04/15</span>
         </a>
         
+        <a  class=""
+           href="/2020/04/15/sparksql-saledemo/"
+           data-tag=""
+           data-author="" >
+            <span class="post-title" title="sparksql-saledemo">sparksql-saledemo</span>
+            <span class="post-date" title="2020-04-15 19:46:02">2020/04/15</span>
+        </a>
+        
+        <a  class=""
+           href="/2020/04/15/sparksql1/"
+           data-tag=""
+           data-author="" >
+            <span class="post-title" title="sparksql1">sparksql1</span>
+            <span class="post-date" title="2020-04-15 19:38:04">2020/04/15</span>
+        </a>
+        
     </nav>
 </div>
     </div>
@@ -321,7 +337,7 @@
     </div>
     <div class="article-meta">
         
-        创建时间:<time class="date" title='更新时间: 2020-04-15 17:51:01'>2020-04-15 17:30</time>
+        创建时间:<time class="date" title='更新时间: 2020-04-15 19:50:56'>2020-04-15 17:30</time>
         
     </div>
     <div class="article-meta">
@@ -361,6 +377,7 @@
       
         <p><strong>利用反射推导schema</strong></p>
 <figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">package</span> com.sqldemo</span><br><span class="line"><span class="keyword">import</span> org.apache.spark.sql.SparkSession</span><br><span class="line"><span class="comment">//方法一，利用反射，建立模式匹配类</span></span><br><span class="line"><span class="comment">//利用反射，rdd转换成dataFrame，模式匹配</span></span><br><span class="line"><span class="function"><span class="keyword">case</span> class <span class="title">Person</span><span class="params">(val name:String,val age:Int)</span></span></span><br><span class="line"><span class="function">object sqldemo1 </span>&#123;</span><br><span class="line">  <span class="function">def <span class="title">main</span><span class="params">(args: Array[String])</span>: Unit </span>= &#123;</span><br><span class="line">    <span class="comment">//创建一个sparkSession对象</span></span><br><span class="line">    val sparkSession = SparkSession.builder().appName(<span class="string">"casesql"</span>).master(<span class="string">"local[2]"</span>).getOrCreate()</span><br><span class="line">    <span class="comment">//创建SparkContext对象</span></span><br><span class="line">    val sc = sparkSession.sparkContext</span><br><span class="line">    <span class="comment">//读取数据文件，获得一个rdd</span></span><br><span class="line">    val rdd1 = sc.textFile(<span class="string">"D:/people.txt"</span>).map(_.split(<span class="string">","</span>))</span><br><span class="line">    <span class="comment">//将rdd与样例类关联</span></span><br><span class="line">    val personRDD = rdd1.map(x=&gt;Person(x(<span class="number">0</span>),x(<span class="number">1</span>).toInt))</span><br><span class="line">    <span class="comment">//将personRDD转化成dataFrame，需导入隐转换</span></span><br><span class="line">    <span class="keyword">import</span> sparkSession.implicits._</span><br><span class="line">    val personDF = personRDD.toDF()</span><br><span class="line">    <span class="comment">//dataFrame风格操作</span></span><br><span class="line">    personDF.printSchema()</span><br><span class="line">    personDF.show()</span><br><span class="line">    personDF.select(<span class="string">"name"</span>,<span class="string">"age"</span>).show()</span><br><span class="line">    personDF.select($<span class="string">"age"</span>&gt;<span class="number">30</span>).show()</span><br><span class="line">    <span class="comment">//sql风格操作</span></span><br><span class="line">    personDF.createTempView(<span class="string">"person"</span>)</span><br><span class="line">    sparkSession.sql(<span class="string">"select * from person"</span>).show()</span><br><span class="line">    sparkSession.sql(<span class="string">"select * from person where age&gt;30"</span>).show()</span><br><span class="line">    <span class="comment">//关闭sparkSession对象</span></span><br><span class="line">    sparkSession.stop()</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>Spark SQL的Scala接口支持自动将包含case class 的RDD转为DataFrame<br>对应的case class定义了表的schema，case class 的参数名称使用反射读取并映射成表的列名，case class还可以嵌套一些复杂类型，如Seq和Array。<br>模式匹配：<br>例：case class Person(name: String, age: Long, salary :Long)</p>
 
       
        <hr><span style="font-style: italic;color: gray;"> 转载请注明来源，欢迎对文章中的引用来源进行考证，欢迎指出任何有错误或不够清晰的表达。可以在下面评论区评论，也可以邮件至 2471447856@qq.com </span>
@@ -378,7 +395,7 @@
     
     <p><span class="copy-title">本文作者:</span><a  title="Sunny">Sunny</a></p>
     <p><span class="copy-title">发布时间:</span>2020-04-15, 17:30:12</p>
-    <p><span class="copy-title">最后更新:</span>2020-04-15, 17:51:01</p>
+    <p><span class="copy-title">最后更新:</span>2020-04-15, 19:50:56</p>
     <span class="copy-title">原始链接:</span><a class="post-url" href="/2020/04/15/sparksql/" title="sparksql">http://yoursite.com/2020/04/15/sparksql/</a>
     <p>
         <span class="copy-title">版权声明:</span><i class="fa fa-creative-commons"></i> <a rel="license noopener" href="http://creativecommons.org/licenses/by-nc-sa/4.0/" target="_blank" title="CC BY-NC-SA 4.0 International" target = "_blank">"署名-非商用-相同方式共享 4.0"</a> 转载请保留原文链接及作者。

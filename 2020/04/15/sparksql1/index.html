@@ -2,9 +2,9 @@
 <html>
 <head>
   <meta charset="utf-8">
-  <title>gooddream | To Sunny</title>
+  <title>sparksql1 | To Sunny</title>
   <meta name="keywords" content="">
-  <meta name="description" content="gooddream | To Sunny">
+  <meta name="description" content="sparksql1 | To Sunny">
     <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
 <meta property="og:type" content="website">
 <meta property="og:title" content="PAT乙">
@@ -325,9 +325,9 @@
 </aside>
 <div class="post">
     <div class="pjax">
-        <article id="post-gooddream" class="article article-type-post" itemscope itemprop="blogPost">
+        <article id="post-sparksql1" class="article article-type-post" itemscope itemprop="blogPost">
     
-        <h1 class="article-title">gooddream</h1>
+        <h1 class="article-title">sparksql1</h1>
     
     <div class="article-meta">
         
@@ -337,7 +337,7 @@
     </div>
     <div class="article-meta">
         
-        创建时间:<time class="date" title='更新时间: 2020-04-02 00:21:29'>2020-04-02 00:21</time>
+        创建时间:<time class="date" title='更新时间: 2020-04-15 19:44:27'>2020-04-15 19:38</time>
         
     </div>
     <div class="article-meta">
@@ -375,7 +375,10 @@
     
     <div class="article-entry" itemprop="articleBody">
       
-        
+        <p><strong>以编程的方式实现</strong></p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">package</span> com.sqldemo</span><br><span class="line"><span class="keyword">import</span> org.apache.spark.sql.types.&#123;IntegerType, StructField, StructType,StringType&#125;</span><br><span class="line"><span class="keyword">import</span> org.apache.spark.sql.&#123;Row, SparkSession&#125;</span><br><span class="line"><span class="comment">//以编程的方式实现rdd转换为dataframe，然后把dataframe转换为虚拟表，最后查询虚拟表</span></span><br><span class="line">object sqldemo2 &#123;</span><br><span class="line">  <span class="function">def <span class="title">main</span><span class="params">(args: Array[String])</span>: Unit </span>= &#123;</span><br><span class="line">    <span class="comment">//创建SparkSession对象</span></span><br><span class="line">    val spark = SparkSession.builder().appName(<span class="string">"StructTypeSchema"</span>).master(<span class="string">"local[2]"</span>).getOrCreate()</span><br><span class="line">    <span class="comment">//创建SparkContext</span></span><br><span class="line">    val sc = spark.sparkContext</span><br><span class="line">    <span class="comment">//设置日志级别（设置为高级，让其少显示一些无关内容）</span></span><br><span class="line">    sc.setLogLevel(<span class="string">"error"</span>)</span><br><span class="line">    <span class="comment">//创建rdd</span></span><br><span class="line">    val peopleRDD = sc.textFile(<span class="string">"d://people.txt"</span>).map(_.split(<span class="string">","</span>))</span><br><span class="line">    <span class="comment">//将RowRDD映射到rowRDD</span></span><br><span class="line">    val RowRDD = peopleRDD.map(x=&gt;Row(x(<span class="number">0</span>),x(<span class="number">1</span>).toInt))</span><br><span class="line">    <span class="comment">//以编程方式动态构造元数据</span></span><br><span class="line">    val schema = StructType(</span><br><span class="line">      Array(</span><br><span class="line">        StructField(<span class="string">"name"</span>,StringType,<span class="keyword">true</span>),</span><br><span class="line">        StructField(<span class="string">"age"</span>,IntegerType,<span class="keyword">true</span>)</span><br><span class="line">      )</span><br><span class="line">    )</span><br><span class="line">    <span class="comment">//将schema信息映射到rowRDD,装换为dataframe</span></span><br><span class="line">    val studentsDF = spark.createDataFrame(RowRDD,schema)</span><br><span class="line">    <span class="comment">//dataFrame操作</span></span><br><span class="line">    studentsDF.printSchema()</span><br><span class="line">    studentsDF.show()</span><br><span class="line">    <span class="comment">//sql风格操作</span></span><br><span class="line">    studentsDF.createTempView(<span class="string">"person"</span>)</span><br><span class="line">    spark.sql(<span class="string">"select * from person"</span>).show()</span><br><span class="line">    spark.stop()</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>如果不能事先定义 case class (例如,记录的结构被编码在字符串中，对字符串进行解析之后才知道结构，或者需要针对不同的用户呈现不同的字段集），那么可以以编程方式创建一个 DataFrame 。<br>从原始的 RDD 创建一个新 的 RDD，成员是Row类型，包含所有列;<br>创建一个 StructType类型的表模式, 它和步骤1中创建的 RDD 中的 Row 结构相匹配；<br>通过 SparkSession 提供的 createDataFrame 方法将表模式应用到步骤1中创建的 RDD 上。</p>
+
       
        <hr><span style="font-style: italic;color: gray;"> 转载请注明来源，欢迎对文章中的引用来源进行考证，欢迎指出任何有错误或不够清晰的表达。可以在下面评论区评论，也可以邮件至 2471447856@qq.com </span>
     </div>
@@ -388,12 +391,12 @@
 
 
 <div class="article_copyright">
-    <p><span class="copy-title">文章标题:</span>gooddream</p>
+    <p><span class="copy-title">文章标题:</span>sparksql1</p>
     
     <p><span class="copy-title">本文作者:</span><a  title="Sunny">Sunny</a></p>
-    <p><span class="copy-title">发布时间:</span>2020-04-02, 00:21:29</p>
-    <p><span class="copy-title">最后更新:</span>2020-04-02, 00:21:29</p>
-    <span class="copy-title">原始链接:</span><a class="post-url" href="/2020/04/02/gooddream/" title="gooddream">http://yoursite.com/2020/04/02/gooddream/</a>
+    <p><span class="copy-title">发布时间:</span>2020-04-15, 19:38:04</p>
+    <p><span class="copy-title">最后更新:</span>2020-04-15, 19:44:27</p>
+    <span class="copy-title">原始链接:</span><a class="post-url" href="/2020/04/15/sparksql1/" title="sparksql1">http://yoursite.com/2020/04/15/sparksql1/</a>
     <p>
         <span class="copy-title">版权声明:</span><i class="fa fa-creative-commons"></i> <a rel="license noopener" href="http://creativecommons.org/licenses/by-nc-sa/4.0/" target="_blank" title="CC BY-NC-SA 4.0 International" target = "_blank">"署名-非商用-相同方式共享 4.0"</a> 转载请保留原文链接及作者。
     </p>
